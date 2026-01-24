@@ -1,3 +1,19 @@
+# =============================================================================
+# LAYER Docker Compose Configuration
+# =============================================================================
+#
+# NOTE: This file is provided for environments WITH Docker support.
+#
+# Cloud Native Strategy (Recommended for development):
+# - PostgreSQL → Supabase (https://supabase.com)
+# - Redis → Upstash (https://upstash.com)
+#
+# For local development WITHOUT Docker:
+# - Use .env.example to configure external service URLs
+# - Tests use pytest-mock and fakeredis for mocking
+#
+# =============================================================================
+
 version: "3.8"
 
 services:

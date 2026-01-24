@@ -7,9 +7,10 @@
 
 ## 원칙 (Principles)
 
-- **모든 백엔드 로직은 TDD로 개발한다** (Testcontainers 사용)
+- **모든 백엔드 로직은 TDD로 개발한다** (Mock 기반 단위 테스트)
 - 검증된 라이브러리 우선 사용 (FastAPI, Next.js, Arq, Calamine)
 - 코드 품질과 타입 안정성을 최우선으로 한다
+- **Cloud Native**: 로컬 Docker 대신 외부 클라우드 서비스 활용
 
 ---
 
@@ -28,6 +29,8 @@
   │   ├── repositories/ # 데이터 접근 계층
   │   └── core/         # 설정, 의존성 등
   └── tests/
+      ├── unit/         # Mock 기반 단위 테스트
+      └── integration/  # 실제 DB 연결 테스트 (선택적)
   ```
 
 ---
@@ -50,12 +53,51 @@
 
 ---
 
-## Testing 규칙
+## Testing 규칙 (Mock 기반)
 
+> **중요**: Docker 환경이 없으므로 Testcontainers는 사용하지 않는다.
+
+### 단위 테스트 (Unit Test) - 기본
+- **pytest-mock / unittest.mock 사용**: DB, Redis 등 외부 의존성은 철저히 Mock 처리
 - **pytest-check 사용**: 다중 assertion 실패 시에도 모든 테스트 결과 확인
-- **DB/Redis는 Mocking 금지**: 실제 환경과 동일하게 Testcontainers 사용
+- **AsyncMock 활용**: 비동기 함수 테스트 시 `unittest.mock.AsyncMock` 사용
 - 테스트 커버리지 최소 80% 유지
 - 테스트 파일 네이밍: `test_*.py`
+
+### 통합 테스트 (Integration Test) - 선택적
+- 실제 DB 연결이 필요한 테스트는 `@pytest.mark.integration` 마커 사용
+- 로컬에서는 `@pytest.mark.skipif` 또는 **SQLite** 대안 사용
+- CI/CD 환경에서만 실제 DB 연결 테스트 실행
+
+### 테스트 실행 예시
+```bash
+# 단위 테스트만 실행 (기본)
+pytest tests/unit/
+
+# 통합 테스트 포함 (DB 연결 필요)
+pytest tests/ --run-integration
+```
+
+---
+
+## 인프라 규칙 (Cloud Native)
+
+> 로컬 Docker 대신 외부 클라우드 서비스를 사용한다.
+
+| 서비스 | 로컬 대안 | 클라우드 |
+|--------|-----------|----------|
+| PostgreSQL | SQLite (테스트용) | **Supabase** |
+| Redis | fakeredis (테스트용) | **Upstash** |
+
+### 환경 변수 (.env)
+```env
+DATABASE_URL=postgresql+asyncpg://user:pass@host:5432/dbname
+REDIS_URL=redis://default:pass@host:6379
+```
+
+### 참고
+- `.env` 파일은 절대 커밋하지 않는다
+- `.env.example`을 참고하여 로컬 환경 설정
 
 ---
 
