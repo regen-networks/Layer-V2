@@ -43,12 +43,13 @@
 - 디렉토리 구조:
   ```
   frontend/
-  ├── app/              # App Router
-  ├── components/
-  │   ├── ui/           # Shadcn/UI 컴포넌트
-  │   └── features/     # 기능별 컴포넌트
-  ├── lib/              # 유틸리티
-  └── actions/          # Server Actions
+  └── src/              # `@/*` 별칭의 기준 (tsconfig.json)
+      ├── app/          # App Router
+      ├── components/
+      │   ├── ui/       # Shadcn/UI 컴포넌트
+      │   └── features/ # 기능별 컴포넌트
+      ├── lib/          # 유틸리티
+      └── actions/      # Server Actions
   ```
 
 ---
@@ -75,7 +76,7 @@
 pytest tests/unit/
 
 # 통합 테스트 포함 (DB 연결 필요)
-pytest tests/ --run-integration
+pytest tests/ --run-integration -o addopts=""   # pyproject의 --ignore=tests/integration 해제
 ```
 
 ---
